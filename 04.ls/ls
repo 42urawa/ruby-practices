@@ -39,3 +39,54 @@ def ls(arrays)
 end
 
 main
+
+
+# lsコマンド2,3用（-a,-r）
+# require 'optparse'
+# options = ARGV.getopts('a', 'r', 'l')
+# # 指定ディレクトリ内のファイル情報を配列として格納
+# def filename
+#   if options[:a]
+#     filenames = Dir.glob("*", File::FNM_DOTMATCH)
+#   else
+#     filenames = Dir.glob('*')
+#   end
+#   if options[:r]
+#     filenames.reverse
+#   else
+#     filenames
+#   end
+# end
+
+# lsコマンド4用（-l）
+# # ファイル詳細情報を標準出力する
+# def ls(arrays)
+#   arrays.each do |array|
+#     array.each do |a|
+#       print a
+#     end
+#     print "\n"
+#   end
+# end
+
+# puts options
+
+# require 'etc'
+
+# p File::Stat.new("folder1")
+# puts ""
+# p "dev: " + File::Stat.new("ls").dev.to_s(16) # 不使用
+# p "ino: " + File::Stat.new("ls").ino.to_s # 不使用
+
+# mode = format("%06<number>d", number: File::Stat.new("folder1").mode.to_s(8))
+# mode = File::Stat.new("folder1").mode.to_s(8).rjust(6, '0')
+# p mode.slice(0, 2)
+# p mode.slice(3, 3)
+# mode.slice(3, 3).chars { |c| puts c }
+# p "nlink: " + File::Stat.new("ls").nlink.to_s
+# p "uid: " + Etc.getpwuid(File::Stat.new("ls").uid).name
+# p "gid: " + Etc.getgrgid(File::Stat.new("ls").gid).name
+# p "size: " + File::Stat.new("ls").size.to_s
+# p "mtime: " + File::Stat.new("ls").mtime.to_s
+# p $0 # 本プログラムのファイル名を取得
+# p File::lstat("ls").mode.to_s(8)
