@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
+OPTIONS = ARGV.getopts('a')
+
 def main
-  names = filename
+  names = OPTIONS['a'] ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
   names_aligned = horizontal_spacing(names)
   names_vertically_arranged = arrange_vertical(names_aligned)
   ls(names_vertically_arranged)
-end
-
-# 指定ディレクトリ内のファイル情報を配列として格納
-def filename
-  Dir.glob('*')
 end
 
 # 各ファイル名文字列長を最大値に合わせる
