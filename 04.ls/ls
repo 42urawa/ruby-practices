@@ -3,18 +3,22 @@
 
 require 'optparse'
 
-OPTIONS = ARGV.getopts('a')
+OPTIONS = ARGV.getopts('a', 'r')
 
 def main
-  names = filenames(OPTIONS['a'])
+  names = filenames(OPTIONS['a'], OPTIONS['r'])
   names_aligned = horizontal_spacing(names)
   names_vertically_arranged = arrange_vertical(names_aligned)
   ls(names_vertically_arranged)
 end
 
 # 指定ディレクトリ内のファイル情報を配列として格納
-def filenames(is_dotmatch)
-  Dir.glob('*', is_dotmatch ? File::FNM_DOTMATCH : 0)
+def filenames(is_dotmatch, is_reversed)
+  if is_reversed
+    Dir.glob('*', is_dotmatch ? File::FNM_DOTMATCH : 0).reverse
+  else
+    Dir.glob('*', is_dotmatch ? File::FNM_DOTMATCH : 0)
+  end
 end
 
 # 各ファイル名文字列長を最大値に合わせる
