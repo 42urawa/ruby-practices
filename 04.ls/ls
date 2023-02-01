@@ -15,9 +15,7 @@ def main
   elsif FileTest.directory? path
     directory_path = path[-1] == '/' ? path : "#{path}/"
     path_names = Dir.glob("#{directory_path}*")
-    names = (Dir.glob("#{directory_path}*").map do |p|
-      p.split('/')[-1]
-    end).to_a
+    names = Dir.glob("#{directory_path}*").map { _1.split('/')[-1] }
   elsif FileTest.file? path
     path_names = [path]
     names = [path.split('/')[-1]]
@@ -41,18 +39,14 @@ end
 # ファイル名情報を標準出力する（-lオプション無し）
 def ls(arrays)
   arrays.each do |array|
-    array.each do |a|
-      print a
-    end
+    array.each { print _1 }
     print "\n"
   end
 end
 
 # 異なる文字数の文字列配列を左右スペース埋めして同文字数の配列にして返す　※日本語対応済
 def align(file_informations, additional_space = 1, reference_position: true)
-  word_counts = (file_informations.map do |information|
-    (information.bytesize + information.length) / 2 # 日本語を2文字分とした文字数を計算
-  end).to_a
+  word_counts = file_informations.map { (_1.bytesize + _1.length) / 2 } # 日本語を2文字分とした文字数を計算
   max_length = word_counts.max + additional_space
   file_informations.map do |information|
     word_count_ja = (information.bytesize - information.length) / 2 # 文字列中に含まれる日本語文字数
@@ -66,9 +60,7 @@ end
 
 # ファイル名の配列からFile::Statクラスの配列を取得
 def files(path_names)
-  path_names.map do |path_name|
-    File::Stat.new(path_name)
-  end
+  path_names.map { File::Stat.new(_1) }
 end
 
 # File::Statクラスの配列からブロック数の配列を取得
@@ -78,9 +70,7 @@ end
 
 # File::Statクラスの配列からモードの配列を取得
 def modes(files)
-  files.map do |file|
-    file.mode.to_s(8).rjust(6, '0')
-  end
+  files.map { _1.mode.to_s(8).rjust(6, '0') }
 end
 
 # モードの配列からファイル種別の配列を取得
@@ -101,56 +91,41 @@ end
 # モードの配列からパーミッションの配列を取得
 def permissions(modes)
   modes.map do |mode|
-    (mode.slice(3, 3).chars.map do |m|
-      [m.to_i.to_s(2).rjust(3, '0').chars, %w[r w x]].transpose.map do |p|
-        p[0] == '1' ? p[1] : '-'
-      end
-    end).join
+    permissions = mode.slice(3, 3).chars.map do |permission|
+      [permission.to_i.to_s(2).rjust(3, '0').chars, %w[r w x]].transpose.map { _1[0] == '1' ? _1[1] : '-' }
+    end
+    permissions.join
   end
 end
 
 # File::Statクラスの配列からnlinkの配列を取得
 def nlinks(files)
-  align(files.map do |file|
-    file.nlink.to_s
-  end, 1)
+  align(files.map { _1.nlink.to_s }, 1)
 end
 
 # File::Statクラスの配列からユーザ名の配列を取得
 def users(files)
-  align(files.map do |file|
-    Etc.getpwuid(file.uid).name
-  end)
+  align(files.map { Etc.getpwuid(_1.uid).name })
 end
 
 # File::Statクラスの配列からグループ名の配列を取得
 def groups(files)
-  align(files.map do |file|
-    Etc.getgrgid(file.gid).name
-  end, 2)
+  align(files.map { Etc.getgrgid(_1.gid).name }, 2)
 end
 
 # File::Statクラスの配列からファイルサイズの配列を取得
 def sizes(files)
-  align(files.map do |file|
-    file.size.to_s
-  end, 2)
+  align(files.map { _1.size.to_s }, 2)
 end
 
 # File::Statクラスの配列から更新時刻の配列を取得
 def mtimes(files)
-  align(files.map do |file|
-    if file.mtime.year == Date.today.year
-      file.mtime.strftime('%_m %e %H:%M')
-    else
-      file.mtime.strftime('%_m %e  %Y')
-    end
-  end)
+  files.map { Date.today.year ? _1.mtime.strftime('%_m %e %H:%M') : _1.mtime.strftime('%_m %e  %Y') }
 end
 
 # ファイル名（先頭に半角スペース1有）の配列を取得
 def names_option_l(names)
-  names.map { |f| f.prepend(' ') }
+  names.map { _1.prepend(' ') }
 end
 
 def ls_detailed(names, path_names)
@@ -167,7 +142,7 @@ def ls_detailed(names, path_names)
   names_option_l = names_option_l(names)
 
   puts "total #{blocks.sum}" if blocks.length > 1
-  [types, permissions, nlinks, users, groups, sizes, mtimes, names_option_l].transpose.each { |s| puts s.join }
+  [types, permissions, nlinks, users, groups, sizes, mtimes, names_option_l].transpose.each { puts _1.join }
 end
 
 def output(names, path_names, is_detailed)
