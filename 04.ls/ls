@@ -10,36 +10,56 @@ OPTIONS = ARGV.getopts('l')
 def main
   path = ARGV[0]
 
-  if path.nil?
-    names = path_names = Dir.glob('*')
-  elsif FileTest.directory? path
-    directory_path = path[-1] == '/' ? path : "#{path}/"
-    path_names = Dir.glob("#{directory_path}*")
-    names = Dir.glob("#{directory_path}*").map { _1.split('/')[-1] }
-  elsif FileTest.file? path
+  if path.nil? # nil
+    path_names = Dir.glob('*')
+  elsif FileTest.directory? path # directory
+    path_names = Dir.glob(File.join(path, '*'))
+  elsif FileTest.file? path # file
     path_names = [path]
-    names = [path.split('/')[-1]]
   else
     puts "ls: #{ARGV[0]}: No such file or directory"
     exit
   end
 
-  output(names, path_names, OPTIONS['l'])
+  output(path_names, OPTIONS['l'])
 end
 
-# ファイル名配列を転置（縦並び出力用）
-def arrange_vertical(array, slice_count = 3)
-  array_display = []
-  row_count = array.length.quo(slice_count).ceil
-  array.each_slice(row_count) { |s| array_display << s }
-  (row_count - array_display[-1].length).times { array_display[-1] << '' }
-  array_display.transpose
+# 結果を出力
+def output(path_names, is_detailed)
+  if is_detailed
+    ls_detailed(path_names)
+  else
+    ls(path_names)
+  end
+end
+
+# lオプション用に出力
+def ls_detailed(path_names)
+  names = path_names.map { File.basename(_1) }
+
+  files = files(path_names)
+  blocks = blocks(files)
+  modes = modes(files)
+  types = types(modes)
+  permissions = permissions(modes)
+  nlinks = nlinks(files)
+  users = users(files)
+  groups = groups(files)
+  sizes = sizes(files)
+  mtimes = mtimes(files)
+  names_option_l = names_option_l(names)
+
+  puts "total #{blocks.sum}" if blocks.length > 1
+  [types, permissions, nlinks, users, groups, sizes, mtimes, names_option_l].transpose.each { puts _1.join }
 end
 
 # ファイル名情報を標準出力する（-lオプション無し）
-def ls(arrays)
-  arrays.each do |array|
-    array.each { print _1 }
+def ls(path_names)
+  names = path_names.map { File.basename(_1) }
+  names_aligned = align(names, 1, reference_position: false) # 左づめで名前を配置
+  names_vertically_arranged = arrange_vertical(names_aligned)
+  names_vertically_arranged.each do |name|
+    name.each { print _1 }
     print "\n"
   end
 end
@@ -56,6 +76,15 @@ def align(file_informations, additional_space = 1, reference_position: true)
       information.ljust(max_length - word_count_ja)
     end
   end
+end
+
+# ファイル名配列を縦並び出力用に転置
+def arrange_vertical(names, column_count = 3)
+  row_count = names.length.quo(column_count).ceil
+  names_sliced = names.each_slice(row_count).to_a
+  # transposeできるよう、要素の数をrow_countの倍数にする
+  (row_count - names_sliced[-1].length).times { names_sliced[-1] << '' }
+  names_sliced.transpose
 end
 
 # ファイル名の配列からFile::Statクラスの配列を取得
@@ -126,33 +155,6 @@ end
 # ファイル名（先頭に半角スペース1有）の配列を取得
 def names_option_l(names)
   names.map { _1.prepend(' ') }
-end
-
-def ls_detailed(names, path_names)
-  files = files(path_names)
-  blocks = blocks(files)
-  modes = modes(files)
-  types = types(modes)
-  permissions = permissions(modes)
-  nlinks = nlinks(files)
-  users = users(files)
-  groups = groups(files)
-  sizes = sizes(files)
-  mtimes = mtimes(files)
-  names_option_l = names_option_l(names)
-
-  puts "total #{blocks.sum}" if blocks.length > 1
-  [types, permissions, nlinks, users, groups, sizes, mtimes, names_option_l].transpose.each { puts _1.join }
-end
-
-def output(names, path_names, is_detailed)
-  if is_detailed
-    ls_detailed(names, path_names)
-  else
-    names_aligned = align(names, 1, reference_position: false) # 左づめで名前を配置
-    names_vertically_arranged = arrange_vertical(names_aligned)
-    ls(names_vertically_arranged)
-  end
 end
 
 main
