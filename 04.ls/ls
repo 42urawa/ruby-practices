@@ -13,21 +13,22 @@ end
 
 # 結果を出力
 def output(path, is_dotmatch, is_reversed, is_detailed)
+  path_names = path_names_from_path(path, is_dotmatch)
+  path_names.reverse! if is_reversed
+  is_detailed ? ls_detailed(path_names) : ls(path_names)
+end
+
+# コマンドライン引数のパスからディレクトリパスの配列を取得
+def path_names_from_path(path, is_dotmatch)
   if path.nil? # nil
-    path_names = Dir.glob('*')
+    Dir.glob('*', is_dotmatch ? File::FNM_DOTMATCH : 0)
   elsif FileTest.directory? path # directory
-    path_names = Dir.glob(File.join(path, '*'))
+    Dir.glob(File.join(path, '*'), is_dotmatch ? File::FNM_DOTMATCH : 0)
   elsif FileTest.file? path # file
-    path_names = [path]
+    [path]
   else
     puts "ls: #{ARGV[0]}: No such file or directory"
     exit
-  end
-
-  if is_detailed
-    ls_detailed(path_names)
-  else
-    ls(path_names)
   end
 end
 
