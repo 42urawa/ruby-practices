@@ -20,10 +20,11 @@ end
 
 # コマンドライン引数のパスからディレクトリパスの配列を取得
 def path_names_from_path(path, is_dotmatch)
+  dotmatch_pattern = is_dotmatch ? File::FNM_DOTMATCH : 0
   if path.nil? # nil
-    Dir.glob('*', is_dotmatch ? File::FNM_DOTMATCH : 0)
+    Dir.glob('*', dotmatch_pattern)
   elsif FileTest.directory? path # directory
-    Dir.glob(File.join(path, '*'), is_dotmatch ? File::FNM_DOTMATCH : 0)
+    Dir.glob(File.join(path, '*'), dotmatch_pattern)
   elsif FileTest.file? path # file
     [path]
   else
