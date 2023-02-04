@@ -5,31 +5,31 @@ require 'optparse'
 require 'etc'
 require 'date'
 
-OPTIONS = ARGV.getopts('l')
+OPTIONS = ARGV.getopts('a', 'r', 'l')
 
 def main
-  path = ARGV[0]
-
-  if path.nil? # nil
-    path_names = Dir.glob('*')
-  elsif FileTest.directory? path # directory
-    path_names = Dir.glob(File.join(path, '*'))
-  elsif FileTest.file? path # file
-    path_names = [path]
-  else
-    puts "ls: #{ARGV[0]}: No such file or directory"
-    exit
-  end
-
-  output(path_names, OPTIONS['l'])
+  output(ARGV[0], OPTIONS['a'], OPTIONS['r'], OPTIONS['l'])
 end
 
 # 結果を出力
-def output(path_names, is_detailed)
-  if is_detailed
-    ls_detailed(path_names)
+def output(path, is_dotmatch, is_reversed, is_detailed)
+  path_names = path_names_from_path(path, is_dotmatch)
+  path_names.reverse! if is_reversed
+  is_detailed ? ls_detailed(path_names) : ls(path_names)
+end
+
+# コマンドライン引数のパスからディレクトリパスの配列を取得
+def path_names_from_path(path, is_dotmatch)
+  dotmatch_pattern = is_dotmatch ? File::FNM_DOTMATCH : 0
+  if path.nil? # nil
+    Dir.glob('*', dotmatch_pattern)
+  elsif FileTest.directory? path # directory
+    Dir.glob(File.join(path, '*'), dotmatch_pattern)
+  elsif FileTest.file? path # file
+    [path]
   else
-    ls(path_names)
+    puts "ls: #{ARGV[0]}: No such file or directory"
+    exit
   end
 end
 
