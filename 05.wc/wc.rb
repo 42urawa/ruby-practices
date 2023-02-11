@@ -58,7 +58,7 @@ def word_counter(text)
   [
     text.count("\n"),
     text.split(' ').length,
-    text.length
+    text.bytesize
   ]
 end
 
