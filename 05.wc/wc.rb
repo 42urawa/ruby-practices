@@ -50,7 +50,7 @@ def wc_without_pipe(argv, is_line_count, is_word_count, is_character_count)
     end
   end
 
-  show_counts([total_line_count, total_word_count, total_character_count], is_line_count, is_word_count, is_character_count, 'total')
+  show_counts([total_line_count, total_word_count, total_character_count], is_line_count, is_word_count, is_character_count, 'total') if argv.length > 1
 end
 
 # textからline数、word数、character数を配列で返す
