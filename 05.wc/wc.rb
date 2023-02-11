@@ -33,24 +33,25 @@ end
 def wc_without_pipe(argv, is_line_count, is_word_count, is_character_count)
   total_line_count = total_word_count = total_character_count = 0
 
-  argv.each do |arg|
-    if FileTest.file? arg # file
-      buf = File.read(arg)
+  if argv == []
+    show_counts(word_counter(readlines.join), is_line_count, is_word_count, is_character_count, '')
+  else
+    argv.each do |arg|
+      if FileTest.file? arg # file
+        buf = File.read(arg)
+        show_counts(word_counter(buf), is_line_count, is_word_count, is_character_count, arg)
 
-      word_counts = word_counter(buf)
-      show_counts(word_counts, is_line_count, is_word_count, is_character_count, arg)
-
-      total_line_count += word_counts[0]
-      total_word_count += word_counts[1]
-      total_character_count += word_counts[2]
-    elsif FileTest.directory? arg # directory
-      puts "wc: #{arg}: read: Is a directory"
-    else
-      puts "wc: #{arg}: open: No such file or directory"
+        total_line_count += word_counts[0]
+        total_word_count += word_counts[1]
+        total_character_count += word_counts[2]
+      elsif FileTest.directory? arg # directory
+        puts "wc: #{arg}: read: Is a directory"
+      else
+        puts "wc: #{arg}: open: No such file or directory"
+      end
     end
+    show_counts([total_line_count, total_word_count, total_character_count], is_line_count, is_word_count, is_character_count, 'total') if argv.length > 1
   end
-
-  show_counts([total_line_count, total_word_count, total_character_count], is_line_count, is_word_count, is_character_count, 'total') if argv.length > 1
 end
 
 # textからline数、word数、character数を配列で返す
