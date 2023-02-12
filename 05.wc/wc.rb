@@ -39,7 +39,8 @@ def wc_without_pipe(argv, is_line_count, is_word_count, is_character_count)
     argv.each do |arg|
       if FileTest.file? arg # file
         buf = File.read(arg)
-        show_counts(word_counter(buf), is_line_count, is_word_count, is_character_count, arg)
+        word_counts = word_counter(buf)
+        show_counts(word_counts, is_line_count, is_word_count, is_character_count, arg)
 
         total_line_count += word_counts[0]
         total_word_count += word_counts[1]
