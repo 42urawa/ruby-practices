@@ -3,10 +3,9 @@
 
 require 'optparse'
 
-OPTIONS = ARGV.getopts('l', 'w', 'c')
-
 def main
-  output(ARGV, OPTIONS['l'], OPTIONS['w'], OPTIONS['c'])
+  options = ARGV.getopts('l', 'w', 'c')
+  output(ARGV, options['l'], options['w'], options['c'])
 end
 
 def output(filenames, is_line_count, is_word_count, is_byte_count)
