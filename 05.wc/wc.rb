@@ -37,7 +37,7 @@ def wc_with_argument(filenames, is_line_count, is_word_count, is_byte_count)
       total_counts[:line] += word_counts[:line]
       total_counts[:word] += word_counts[:word]
       total_counts[:byte] += word_counts[:byte]
-    elsif FileTest.directory?(filename)
+    elsif File.directory?(filename)
       puts "wc: #{filename}: read: Is a directory"
     else
       puts "wc: #{filename}: open: No such file or directory"
