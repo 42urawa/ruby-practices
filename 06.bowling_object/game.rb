@@ -1,31 +1,29 @@
 # frozen_string_literal: true
 
 class Game
-  # attr_accessor :frames
-
-  def initialize(frames)
-    @frames = frames
+  def initialize(marks_string)
+    @marks_string = marks_string
   end
 
-  def frame_to_score
-    point = 0
+  def calculate_score
+    frames = []
+    result = 0
+    @marks_string
+      .split(',')
+      .map { |mark| Shot.new(mark).to_pins }
+      .flatten
+      .each_slice(2) { |frame| frames << Frame.new(frame) }
     10.times do |frame|
-      point += if @frames[frame][0] == 10 # strike
-                 if @frames[frame + 1][0] == 10
-                   @frames[frame].sum + @frames[frame + 1].sum + @frames[frame + 2][0]
-                 else
-                   @frames[frame].sum + @frames[frame + 1].sum
-                 end
-               elsif @frames[frame].sum == 10 # spare
-                 @frames[frame].sum + @frames[frame + 1][0]
-               else
-                 @frames[frame].sum
-               end
+      result += if frames[frame].strike? && frames[frame + 1].strike?
+                  frames[frame].score + frames[frame + 1].score + frames[frame + 2].shots[0]
+                elsif frames[frame].strike?
+                  frames[frame].score + frames[frame + 1].score
+                elsif frames[frame].spare?
+                  frames[frame].score + frames[frame + 1].shots[0]
+                else
+                  frames[frame].score
+                end
     end
-    point
-  end
-
-  def test
-    puts 'testしたよ'
+    result
   end
 end

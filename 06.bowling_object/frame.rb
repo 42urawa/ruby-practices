@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
 class Frame
-  # attr_accessor :shots
+  attr_accessor :shots
 
   def initialize(shots)
     @shots = shots
   end
 
-  def shot_to_frame
-    frames = []
-    @shots.each_slice(2) do |shot|
-      frames << shot
-    end
-    frames
+  def strike?
+    shots[0] == 10
+  end
+
+  def spare?
+    shots[0] != 10 && shots.sum == 10
+  end
+
+  def score
+    shots.sum
   end
 end
