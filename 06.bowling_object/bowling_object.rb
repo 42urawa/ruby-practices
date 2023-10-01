@@ -5,4 +5,4 @@ require_relative 'frame'
 require_relative 'shot'
 
 game = Game.new(ARGV[0])
-p game.calculate_score
+puts game.score

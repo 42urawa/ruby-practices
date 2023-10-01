@@ -5,14 +5,9 @@ class Shot
     @mark = mark
   end
 
-  def to_pins
-    pins = []
-    if @mark == 'X'
-      pins << 10
-      pins << 0
-    else
-      pins << @mark.to_i
-    end
-    pins
+  def score
+    return 10 if @mark == 'X'
+
+    @mark.to_i
   end
 end
