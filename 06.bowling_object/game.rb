@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 class Game
-  def initialize(marks_string)
+  def initialize(marks_str)
     marks_with_zero = []
-    marks_string
-      .split(',')
-      .each do |mark|
+    marks_str.split(',').each do |mark|
       if mark == 'X'
         marks_with_zero << 'X'
         marks_with_zero << '0'
