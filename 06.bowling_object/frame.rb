@@ -10,7 +10,7 @@ class Frame
   end
 
   def score
-    @first_shot.score + @second_shot.score + (@third_shot&.score || 0)
+    @first_shot.score + @second_shot.score + @third_shot.score
   end
 
   def strike?
