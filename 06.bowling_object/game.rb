@@ -14,16 +14,7 @@ class Game
 
     framed_marks = []
     marks_with_zero.each_slice(2) { |frame| framed_marks << frame }
-
-    tenth_frame_shots_with_zero = framed_marks.slice(9..).flatten
-
-    tenth_frame = if tenth_frame_shots_with_zero[0] == 'X' && tenth_frame_shots_with_zero[2] == 'X' ## double, turkey
-                    [] << tenth_frame_shots_with_zero[0] << tenth_frame_shots_with_zero[2] << tenth_frame_shots_with_zero[4]
-                  elsif tenth_frame_shots_with_zero[0] == 'X' ## single
-                    tenth_frame_shots_with_zero.select.with_index { |_value, index| index != 1 }
-                  else
-                    tenth_frame_shots_with_zero.slice(0, 3)
-                  end
+    tenth_frame = framed_marks.slice(9..).flatten.join('').gsub(/X0/, 'X').split('')
 
     @frames = (framed_marks.slice(..8) << tenth_frame).map { |frame| Frame.new(*frame) }
   end
@@ -37,33 +28,24 @@ class Game
   end
 
   def double_strike_bonus
-    bonus_score = 0
-
-    0.upto(7) do |i|
-      bonus_score += @frames[i + 1].first_shot.score + @frames[i + 2].first_shot.score if @frames[i].strike? && @frames[i + 1].strike?
-    end
-
-    bonus_score
+    bonus_score_exclude_ninth_strike =
+      @frames.slice(1..8)
+             .map.with_index { |_f, i| @frames[i + 1].first_shot.score + @frames[i + 2].first_shot.score }
+             .select.with_index { |_s, i| @frames[i].strike? && @frames[i + 1].strike? }.sum
+    ninth_bonus_score = if @frames[8].strike? && @frames[9].strike?
+                          @frames[9].first_shot.score + @frames[9].second_shot.score
+                        else
+                          0
+                        end
+    bonus_score_exclude_ninth_strike + ninth_bonus_score
   end
 
   def single_strike_bonus
-    bonus_score = 0
-
-    0.upto(7) do |i|
-      bonus_score += @frames[i + 1].first_shot.score + @frames[i + 1].second_shot.score if @frames[i].strike? && !@frames[i + 1].strike?
-    end
-
-    bonus_score += @frames[9].first_shot.score + @frames[9].second_shot.score if @frames[8].strike?
-    bonus_score
+    @frames.slice(1..).map { |frame| frame.first_shot.score + frame.second_shot.score }
+           .select.with_index { |_s, i| @frames[i].strike? && !@frames[i + 1].strike? }.sum
   end
 
   def spare_bonus
-    bonus_score = 0
-
-    0.upto(8) do |i|
-      bonus_score += @frames[i + 1].first_shot.score if @frames[i].spare?
-    end
-
-    bonus_score
+    @frames.slice(1..).map { |frame| frame.first_shot.score }.select.with_index { |_s, i| @frames[i].spare? }.sum
   end
 end
