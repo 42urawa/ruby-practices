@@ -28,24 +28,30 @@ class Game
   end
 
   def double_strike_bonus
-    bonus_score_exclude_ninth_strike =
-      @frames.slice(1..8)
-             .map.with_index { |_f, i| @frames[i + 1].first_shot.score + @frames[i + 2].first_shot.score }
-             .select.with_index { |_s, i| @frames[i].strike? && @frames[i + 1].strike? }.sum
-    ninth_bonus_score = if @frames[8].strike? && @frames[9].strike?
-                          @frames[9].first_shot.score + @frames[9].second_shot.score
-                        else
-                          0
-                        end
-    bonus_score_exclude_ninth_strike + ninth_bonus_score
+    (0..8).sum do |i|
+      next 0 unless @frames[i].strike? && @frames[i + 1].strike?
+
+      if i < 8
+        @frames[i + 1].first_shot.score + @frames[i + 2].first_shot.score
+      else
+        @frames[i + 1].first_shot.score + @frames[i + 1].second_shot.score
+      end
+    end
   end
 
   def single_strike_bonus
-    @frames.slice(1..).map { |frame| frame.first_shot.score + frame.second_shot.score }
-           .select.with_index { |_s, i| @frames[i].strike? && !@frames[i + 1].strike? }.sum
+    (0..8).sum do |i|
+      next 0 unless @frames[i].strike? && !@frames[i + 1].strike?
+
+      @frames[i + 1].first_shot.score + @frames[i + 1].second_shot.score
+    end
   end
 
   def spare_bonus
-    @frames.slice(1..).map { |frame| frame.first_shot.score }.select.with_index { |_s, i| @frames[i].spare? }.sum
+    (0..8).sum do |i|
+      next 0 unless @frames[i].spare?
+
+      @frames[i + 1].first_shot.score
+    end
   end
 end
