@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'etc'
+require 'date'
+require_relative 'general_commander'
+require_relative 'long_commander'
+require_relative 'short_commander'
+
+OPTIONS = ARGV.getopts('a', 'r', 'l')
+
+commander = GeneralCommander.new(
+  path: ARGV[0],
+  is_dotmatch: OPTIONS['a'],
+  is_reversed: OPTIONS['r'],
+  is_detailed: OPTIONS['l'],
+)
+
+commander.show
