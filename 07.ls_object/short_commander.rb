@@ -9,6 +9,8 @@ class ShortCommander
     puts segments
   end
 
+  private
+
   def segments
     names = @file_paths.map { |file_path| File.basename(file_path) }
     max_digit_of_names = names.map(&:length).max

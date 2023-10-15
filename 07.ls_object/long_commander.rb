@@ -9,6 +9,8 @@ class LongCommander
     puts segments
   end
 
+  private
+
   def segments
     segments = @file_paths.map do |file_path|
       create_segment(file_path)
