@@ -14,7 +14,7 @@ class ShortCommander
     max_digit_of_names = names.map(&:length).max
     names_left_aligned = names.map { |name| name.ljust(max_digit_of_names) }
     names_transposed = transpose_names(names_left_aligned)
-    names_transposed.map { |name_transposed| name_transposed.join(' ')}
+    names_transposed.map { |name_transposed| name_transposed.join(' ') }
   end
 
   def transpose_names(names, column_count = 3)

@@ -17,11 +17,7 @@ class GeneralCommander
 
     file_paths.reverse! if args[:is_reversed]
 
-    @commander = if args[:is_detailed]
-                   LongCommander.new(file_paths)
-                 else
-                   ShortCommander.new(file_paths)
-                 end
+    @commander = args[:is_detailed] ? LongCommander.new(file_paths) : ShortCommander.new(file_paths)
   end
 
   def show

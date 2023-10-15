@@ -14,7 +14,7 @@ commander = GeneralCommander.new(
   path: ARGV[0],
   is_dotmatch: OPTIONS['a'],
   is_reversed: OPTIONS['r'],
-  is_detailed: OPTIONS['l'],
+  is_detailed: OPTIONS['l']
 )
 
 commander.show
