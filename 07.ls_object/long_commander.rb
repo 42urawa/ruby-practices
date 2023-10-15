@@ -15,8 +15,11 @@ class LongCommander
     segments = @file_paths.map do |file_path|
       create_segment(file_path)
     end
+    @file_paths.length == 1 ? segments : segments.unshift("total #{total_blocks}")
+  end
 
-    segments.unshift("total #{total_blocks}") if @file_paths.length > 1
+  def max_digit_of_nlink
+    file_stats.map { |file_stat| file_stat.nlink.to_s.length }.max
   end
 
   def max_digit_of_size
@@ -55,12 +58,12 @@ class LongCommander
         '7' => 'rwx'
       }[num]
     end.join('')
-    nlink = file_stat.nlink.to_s
+    nlink = file_stat.nlink.to_s.rjust(max_digit_of_nlink)
     user = Etc.getpwuid(file_stat.uid).name
     group = Etc.getgrgid(file_stat.gid).name
     size = file_stat.size.to_s.rjust(max_digit_of_size)
     mtime = file_stat.mtime.year == Date.today.year ? file_stat.mtime.strftime('%b %e %H:%M') : file_stat.mtime.strftime('%b %e  %Y')
-    name = File.basename(file_path)
+    name = FileTest.file?(file_path) && @file_paths.length == 1 ? file_path : File.basename(file_path)
     "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
   end
 end
