@@ -13,57 +13,32 @@ class LongCommander
 
   def segments
     segments = @file_paths.map do |file_path|
-      create_segment(file_path)
+      segment = Segment.new(file_path)
+
+      type = segment.type
+      permission = segment.permission
+      nlink = segment.nlink.rjust(max_digit_of_nlink)
+      user = segment.user
+      group = segment.group
+      size = segment.size.rjust(max_digit_of_size)
+      mtime = segment.mtime
+      name = @file_paths.length == 1 ? segment.name : File.basename(segment.name)
+
+      "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
     end
+
     @file_paths.length == 1 ? segments : segments.unshift("total #{total_blocks}")
   end
 
   def max_digit_of_nlink
-    file_stats.map { |file_stat| file_stat.nlink.to_s.length }.max
+    @file_paths.map { |file_path| Segment.new(file_path).nlink.to_s.length }.max
   end
 
   def max_digit_of_size
-    file_stats.map { |file_stat| file_stat.size.to_s.length }.max
+    @file_paths.map { |file_path| Segment.new(file_path).size.to_s.length }.max
   end
 
   def total_blocks
-    file_stats.map(&:blocks).sum
-  end
-
-  def file_stats
-    @file_paths.map { |file_path| File::Stat.new(file_path) }
-  end
-
-  def create_segment(file_path)
-    file_stat = File::Stat.new(file_path)
-    mode = file_stat.mode.to_s(8).rjust(6, '0')
-    type = {
-      '02' => 'c',
-      '04' => 'd',
-      '01' => 'p',
-      '06' => 'b',
-      '10' => '-',
-      '12' => 'l',
-      '14' => 's'
-    }[mode.slice(0, 2)]
-    permission = mode.slice(3, 3).chars.map do |num|
-      {
-        '0' => '---',
-        '1' => '--x',
-        '2' => '-w-',
-        '3' => '-wx',
-        '4' => 'r--',
-        '5' => 'r-x',
-        '6' => 'rw-',
-        '7' => 'rwx'
-      }[num]
-    end.join('')
-    nlink = file_stat.nlink.to_s.rjust(max_digit_of_nlink)
-    user = Etc.getpwuid(file_stat.uid).name
-    group = Etc.getgrgid(file_stat.gid).name
-    size = file_stat.size.to_s.rjust(max_digit_of_size)
-    mtime = file_stat.mtime.year == Date.today.year ? file_stat.mtime.strftime('%b %e %H:%M') : file_stat.mtime.strftime('%b %e  %Y')
-    name = FileTest.file?(file_path) && @file_paths.length == 1 ? file_path : File.basename(file_path)
-    "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
+    @file_paths.map { |file_path| Segment.new(file_path).blocks }.sum
   end
 end
