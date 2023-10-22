@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 class LongCommander
-  def initialize(file_paths)
+  def initialize(file_paths:, is_file_path:)
     @file_paths = file_paths
+    @is_file_path = is_file_path
+    @max_digit_of_nlink = @file_paths.map { |file_path| Segment.new(file_path:).nlink.to_s.length }.max
+    @max_digit_of_size = @file_paths.map { |file_path| Segment.new(file_path:).size.to_s.length }.max
   end
 
   def show
@@ -13,32 +16,15 @@ class LongCommander
 
   def segments
     segments = @file_paths.map do |file_path|
-      segment = Segment.new(file_path)
+      segment = Segment.new(file_path:, is_file_path: @is_file_path, max_digit_of_nlink: @max_digit_of_nlink, max_digit_of_size: @max_digit_of_size)
 
-      type = segment.type
-      permission = segment.permission
-      nlink = segment.nlink.rjust(max_digit_of_nlink)
-      user = segment.user
-      group = segment.group
-      size = segment.size.rjust(max_digit_of_size)
-      mtime = segment.mtime
-      name = @file_paths.length == 1 ? segment.name : File.basename(segment.name)
-
-      "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
+      segment.segment
     end
 
-    @file_paths.length == 1 ? segments : segments.unshift("total #{total_blocks}")
-  end
-
-  def max_digit_of_nlink
-    @file_paths.map { |file_path| Segment.new(file_path).nlink.to_s.length }.max
-  end
-
-  def max_digit_of_size
-    @file_paths.map { |file_path| Segment.new(file_path).size.to_s.length }.max
+    @is_file_path ? segments : segments.unshift("total #{total_blocks}")
   end
 
   def total_blocks
-    @file_paths.map { |file_path| Segment.new(file_path).blocks }.sum
+    @file_paths.map { |file_path| Segment.new(file_path:).blocks }.sum
   end
 end

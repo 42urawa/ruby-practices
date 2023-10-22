@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 class Segment
-  def initialize(file_path)
+  def initialize(file_path:, is_file_path: false, max_digit_of_nlink: 0, max_digit_of_size: 0)
     @file_path = file_path
+    @is_file_path = is_file_path
+    @max_digit_of_nlink = max_digit_of_nlink
+    @max_digit_of_size = max_digit_of_size
+  end
+
+  def segment
+    "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
   end
 
   def type
@@ -33,7 +40,7 @@ class Segment
   end
 
   def nlink
-    file_stat.nlink.to_s
+    file_stat.nlink.to_s.rjust(@max_digit_of_nlink)
   end
 
   def user
@@ -45,15 +52,16 @@ class Segment
   end
 
   def size
-    file_stat.size.to_s
+    file_stat.size.to_s.rjust(@max_digit_of_size)
   end
 
   def mtime
-    file_stat.mtime.year == Date.today.year ? file_stat.mtime.strftime('%b %e %H:%M') : file_stat.mtime.strftime('%b %e  %Y')
+    format = file_stat.mtime.year == Date.today.year ? '%b %e %H:%M' : '%b %e  %Y'
+    file_stat.mtime.strftime(format)
   end
 
   def name
-    FileTest.file?(@file_path) ? @file_path : File.basename(@file_path)
+    @is_file_path ? @file_path : File.basename(@file_path)
   end
 
   def blocks
@@ -63,7 +71,7 @@ class Segment
   private
 
   def file_stat
-    File::Stat.new(@file_path)
+    @file_stat ||= File::Stat.new(@file_path)
   end
 
   def mode

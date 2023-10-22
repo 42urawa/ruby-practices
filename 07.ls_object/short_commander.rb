@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class ShortCommander
-  def initialize(file_paths)
+  def initialize(file_paths:, is_file_path:)
     @file_paths = file_paths
+    @is_file_path = is_file_path
   end
 
   def show
@@ -12,7 +13,7 @@ class ShortCommander
   private
 
   def segments
-    names = @file_paths.map { |file_path| File.basename(file_path) }
+    names = @is_file_path ? @file_paths : @file_paths.map { |file_path| File.basename(file_path) }
     max_digit_of_names = names.map(&:length).max
     names_left_aligned = names.map { |name| name.ljust(max_digit_of_names) }
     names_transposed = transpose_names(names_left_aligned)
