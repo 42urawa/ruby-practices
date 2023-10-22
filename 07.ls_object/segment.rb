@@ -12,6 +12,20 @@ class Segment
     "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
   end
 
+  def nlink
+    file_stat.nlink.to_s.rjust(@max_digit_of_nlink)
+  end
+
+  def size
+    file_stat.size.to_s.rjust(@max_digit_of_size)
+  end
+
+  def blocks
+    file_stat.blocks
+  end
+
+  private
+
   def type
     {
       '02' => 'c',
@@ -39,20 +53,12 @@ class Segment
     end.join('')
   end
 
-  def nlink
-    file_stat.nlink.to_s.rjust(@max_digit_of_nlink)
-  end
-
   def user
     Etc.getpwuid(file_stat.uid).name
   end
 
   def group
     Etc.getgrgid(file_stat.gid).name
-  end
-
-  def size
-    file_stat.size.to_s.rjust(@max_digit_of_size)
   end
 
   def mtime
@@ -63,12 +69,6 @@ class Segment
   def name
     @is_file_path ? @file_path : File.basename(@file_path)
   end
-
-  def blocks
-    file_stat.blocks
-  end
-
-  private
 
   def file_stat
     @file_stat ||= File::Stat.new(@file_path)
