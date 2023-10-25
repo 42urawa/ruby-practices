@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 class Segment
-  def initialize(file_path)
+  def initialize(file_path:, is_file_path:)
     @file_path = file_path
+    @is_file_path = is_file_path
   end
 
-  def segment(args)
-    "#{type}#{permission}@ #{nlink.rjust(args[:max_digit_of_nlink])} #{user}  #{group}  "\
-    "#{size.rjust(args[:max_digit_of_size])} #{mtime} #{name(args[:is_file_path])}"
+  def combine_segment_info(max_digit_of_nlink:, max_digit_of_size:)
+    "#{type}#{permission}@ #{nlink.rjust(max_digit_of_nlink)} #{user}  #{group}  "\
+    "#{size.rjust(max_digit_of_size)} #{mtime} #{name}"
   end
 
   def nlink
@@ -64,8 +65,8 @@ class Segment
     file_stat.mtime.strftime(format)
   end
 
-  def name(is_file_path)
-    is_file_path ? @file_path : File.basename(@file_path)
+  def name
+    @is_file_path ? @file_path : File.basename(@file_path)
   end
 
   def file_stat
