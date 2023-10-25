@@ -1,23 +1,21 @@
 # frozen_string_literal: true
 
 class Segment
-  def initialize(file_path:, is_file_path: false, max_digit_of_nlink: 0, max_digit_of_size: 0)
+  def initialize(file_path)
     @file_path = file_path
-    @is_file_path = is_file_path
-    @max_digit_of_nlink = max_digit_of_nlink
-    @max_digit_of_size = max_digit_of_size
   end
 
-  def segment
-    "#{type}#{permission}@ #{nlink} #{user}  #{group}  #{size} #{mtime} #{name}"
+  def segment(args)
+    "#{type}#{permission}@ #{nlink.rjust(args[:max_digit_of_nlink])} #{user}  #{group}  "\
+    "#{size.rjust(args[:max_digit_of_size])} #{mtime} #{name(args[:is_file_path])}"
   end
 
   def nlink
-    file_stat.nlink.to_s.rjust(@max_digit_of_nlink)
+    file_stat.nlink.to_s
   end
 
   def size
-    file_stat.size.to_s.rjust(@max_digit_of_size)
+    file_stat.size.to_s
   end
 
   def blocks
@@ -66,8 +64,8 @@ class Segment
     file_stat.mtime.strftime(format)
   end
 
-  def name
-    @is_file_path ? @file_path : File.basename(@file_path)
+  def name(is_file_path)
+    is_file_path ? @file_path : File.basename(@file_path)
   end
 
   def file_stat
